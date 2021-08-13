@@ -1,0 +1,28 @@
+{
+  "name": "the-big-bang-crawler",
+  "version": "1.10.8",
+  "private": true,
+  "scripts": {
+    "dev": "farrow dev",
+    "build": "farrow build",
+    "start": "farrow start"
+  },
+  "dependencies": {
+    "crawler": "^1.3.0",
+    "dotenv": "^10.0.0",
+    "farrow": "^1.10.8",
+    "farrow-api": "^1.10.8",
+    "farrow-api-client": "^1.10.8",
+    "farrow-api-server": "^1.10.8",
+    "farrow-http": "^1.10.8",
+    "farrow-pipeline": "^1.10.6",
+    "farrow-schema": "^1.10.8",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/crawler": "^1.2.2",
+    "@types/node": "^14.14.35",
+    "@types/node-fetch": "^2.5.12",
+    "typescript": "^4.2.2"
+  }
+}
