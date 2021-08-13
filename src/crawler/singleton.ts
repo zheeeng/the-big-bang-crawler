@@ -18,23 +18,29 @@ let resultEntries: Array<ResultEntry> = Object.keys(processors).map(
 const updateResult = async () => {
   const now = new Date().getTime();
 
-  resultEntries = await Promise.all(
-    resultEntries.map(async ([processorName, content, time]) => {
-      if (!time || !content || now > time + cacheLifeSpan) {
-        await fetch(`get ${processorName} from remote`);
+  log("开始获取" + resultEntries.map((entry) => entry[0]));
 
-        return [
-          processorName,
-          await processors[processorName as keyof typeof processors](),
-          now,
-        ] as ResultEntry;
-      } else {
-        await fetch(`get ${processorName} from local cache`);
-      }
+  try {
+    resultEntries = await Promise.all(
+      resultEntries.map(async ([processorName, content, time]) => {
+        if (!time || !content || now > time + cacheLifeSpan) {
+          log(`get ${processorName} from remote`);
 
-      return [processorName, content, time] as ResultEntry;
-    })
-  );
+          return [
+            processorName,
+            await processors[processorName as keyof typeof processors](),
+            now,
+          ] as ResultEntry;
+        } else {
+          log(`get ${processorName} from local cache`);
+        }
+
+        return [processorName, content, time] as ResultEntry;
+      })
+    );
+  } catch (e) {
+    log("updateResult 错误" + e.toString(), "error");
+  }
 };
 
 let todayInfo: {
