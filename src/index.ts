@@ -1,10 +1,10 @@
-import "./config/env";
+import { CRAWLER_PORT } from "./config/env";
 import { Http } from "farrow-http";
 import { services } from "./api";
 
 const http = Http();
 
-const port = 8868;
+const port = CRAWLER_PORT;
 
 http.use(services);
 
