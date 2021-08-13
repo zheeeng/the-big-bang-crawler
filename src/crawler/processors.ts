@@ -1,5 +1,5 @@
 import { log } from "../common/log";
-import { CRAWLER_RUANYIFENG_TOPICS } from "../config/env";
+import { CRAWLER_RUANYIFENG_TOPICS, CRAWLER_TIME_SPAN_HOURS } from "../config/env";
 import { RuanYifengContent } from "./type";
 import {
   githubFrontEndTopicWorker,
@@ -10,7 +10,7 @@ import {
   ruanYifengAllBlogWorker,
 } from "./workers";
 
-const filterTimeSpan = 24 * 1000 * 3600 * 70;
+const filterTimeSpan = 1000 * 3600 * CRAWLER_TIME_SPAN_HOURS;
 
 type ProcessorResult = [total: number, mdContent: string];
 
@@ -68,7 +68,7 @@ export const githubFrontEndTopicProcessor =
         `## Github 前端专题榜`,
         ...articles.map((article) => [
           `### [${article.title}](${article.link})`,
-          `\t${article.content}`,
+          `    ${article.content}`,
           `语言：${article.language} ｜ ⭐️：${article.stars}`,
         ]),
       ]
@@ -98,7 +98,7 @@ export const githubTrendingProcessor = async (): Promise<ProcessorResult> => {
       `## Github TS/JS 流行趋势`,
       ...githubTrending.map((article) => [
         `### [${article.title}](${article.link})`,
-        `\t${article.content}`,
+        `    ${article.content}`,
         `语言：${article.language} ｜ fork：${article.forks} | ⭐️：${article.stars} | 今日 ⭐️：${article.todayStars} `,
       ]),
     ]
@@ -128,7 +128,7 @@ export const juejinHotProcessor = async (): Promise<ProcessorResult> => {
       `## 掘金 24 小时内最新前端热贴`,
       ...latestArticles.map((article) => [
         `### [${article.title}](${article.link})`,
-        `\t${article.content}`,
+        `    ${article.content}`,
         `作者：${article.authorName} ｜ 评论数：${article.commentCount} | 浏览数：${article.viewCount} | 🧡：${article.diggCount}`,
       ]),
     ]
@@ -158,7 +158,7 @@ export const infoQFEProcessor = async (): Promise<ProcessorResult> => {
       `## InfoQ 前端之巅 24 小时内最新前端热贴`,
       ...latestArticles.map((article) => [
         `### [${article.title}](${article.link})`,
-        `\t${article.content}`,
+        `    ${article.content}`,
         `作者：${article.authors}`,
       ]),
     ]
