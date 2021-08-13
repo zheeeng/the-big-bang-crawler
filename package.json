@@ -2,6 +2,9 @@
   "name": "the-big-bang-crawler",
   "version": "1.10.8",
   "private": true,
+  "engines": {
+    "node": "14.x"
+  },
   "scripts": {
     "dev": "farrow dev",
     "build": "farrow build",
