@@ -2,6 +2,7 @@ import * as processors from "./processors";
 import { nonNull } from "./utils";
 import fetch from "node-fetch";
 import { log } from "../common/log";
+import { CRAWLER_TIME_SPAN_HOURS } from "../config/env";
 
 type ResultEntry = [
   processorName: string,
@@ -9,7 +10,7 @@ type ResultEntry = [
   time: null | number
 ];
 
-const cacheLifeSpan = 1000 * 3600 * 12;
+const cacheLifeSpan = 1000 * 3600 * CRAWLER_TIME_SPAN_HOURS;
 
 let resultEntries: Array<ResultEntry> = Object.keys(processors).map(
   (processorName) => [processorName, null, null]
@@ -113,7 +114,7 @@ const message = async () => {
     .reduce<[total: number, content: string]>(
       ([outputTotal, outputContent], [total, content]) => {
         if (!total || !content) return [outputTotal, outputContent];
-        return [outputTotal + total, outputContent + content + "\n\n"];
+        return [outputTotal + total, outputContent + content + "\n\n---\n\n"];
       },
       [0, ""]
     );
@@ -121,11 +122,12 @@ const message = async () => {
   const { quote, quoteAuthor, today, greetingImage } = await getTodayInfo();
 
   const output = [
-    `# the BIG FE 🔥 今日读物`,
+    `# the BIG BANG FE 🔥 今日读物`,
     `**时间：***${today}*`,
     `**总数：***${total} 条*`,
     `![Hello](${greetingImage})`,
     `> ${quote} *-- ${quoteAuthor}*`,
+    '---',
     content,
   ].join("\n\n");
   return output;
