@@ -18,6 +18,8 @@ export const ruanYifengBlogProcessor = async (): Promise<ProcessorResult> => {
   try {
     const latestArticles = await ruanYifengAllBlogWorker();
 
+    log(`阮一峰博客最新 ${latestArticles.length} 条`);
+
     const allForReference = latestArticles.reduce<
       Record<string, RuanYifengContent>
     >((rec, article) => {
@@ -26,11 +28,12 @@ export const ruanYifengBlogProcessor = async (): Promise<ProcessorResult> => {
     }, {});
 
     const topics = await Promise.all(
-      CRAWLER_RUANYIFENG_TOPICS.map(topic => ruanYifengBlogWorker("weekly", allForReference))
+      CRAWLER_RUANYIFENG_TOPICS.map(topic => ruanYifengBlogWorker(topic, allForReference))
     );
     const totalArticles = topics.flatMap(topic => topic);
 
     log(`阮一峰博客 ${totalArticles.length} 条`);
+
     topics.forEach((topic, index) => {
       if (CRAWLER_RUANYIFENG_TOPICS[index]) {
         log(`阮一峰博客 ${CRAWLER_RUANYIFENG_TOPICS[index]} 专题 ${topic.length} 条`);
