@@ -23,15 +23,14 @@ services
         success: true,
         errorCode: 200,
         errorMsg: "",
-        fields: JSON.stringify({
+        fields: {
           "msgType": "markdown",
           "title": "乔布斯",
           "text": await singleton(),
           "atDingtalkIds": "对应的钉钉用户钉钉号",
           "isAtAll": false
-        }),
+        },
       });
 
     return Response.text(await singleton());
   });
-
