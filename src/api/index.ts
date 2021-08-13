@@ -10,11 +10,14 @@ services
     pathname: "/api/fe-daily",
     query: {
       accessToken: String,
+      format: String
     },
   })
   .use(async (request) => {
     if (request.query.accessToken !== CRAWLER_ACCESS_TOKEN)
       return Response.status(401, "Invalid accessToken");
 
-    return Response.text(await singleton());
+    if (request.query.format === 'md') return Response.text(await singleton());
+
+    return Response.json({ markdown: await singleton() })
   });
