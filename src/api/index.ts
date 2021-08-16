@@ -1,12 +1,11 @@
 import { Response, Router } from "farrow-http";
 import { Nullable } from "farrow-schema";
 import { singleton } from "../crawler/singleton";
-import { CRAWLER_ACCESS_TOKEN } from "../config/env";
-import { dingTalkTask } from "../tasks/dingtalkBot";
+import { CRAWLER_ACCESS_TOKEN, CRAWLER_DINGTALK_WEBHOOKS } from "../config/env";
+import { dingTalkTask, dingTalkAsk } from "../tasks/dingtalkBot";
 
 export const services = Router();
 
-// attach todo api
 services
   .match({
     pathname: "/api/fe-daily",
@@ -21,21 +20,42 @@ services
     return Response.text(await singleton());
   });
 
-// attach todo api
 services
   .match({
     pathname: "/dingtalk-bot/fe-daily",
     query: {
       accessToken: String,
-      format: Nullable(String),
+      answerHook: Nullable(String),
     },
   })
   .use(async (request) => {
     if (request.query.accessToken !== CRAWLER_ACCESS_TOKEN)
       return Response.status(401, "Invalid accessToken");
-    dingTalkTask()
+    dingTalkTask(request.query.answerHook ?? CRAWLER_DINGTALK_WEBHOOKS);
 
     return Response.json({
-      message: '机器人任务已发布'
-    })
+      message: "机器人任务已发布",
+    });
+  });
+
+services
+  .match({
+    pathname: "/ask-bot/fe-daily",
+    body: {
+      accessToken: String,
+      answerHook: String,
+      "sys.userInput": String,
+    },
+    method: 'POST'
+  })
+  .use(async (request) => {
+    if (request.body.accessToken !== CRAWLER_ACCESS_TOKEN)
+      return Response.status(401, "Invalid accessToken");
+
+    dingTalkAsk(request.body["sys.userInput"], request.body.answerHook);
+
+    return Response.json({
+      message: "问题已送出",
+      body: request.body,
+    });
   });
