@@ -31,6 +31,11 @@ export type InfoQFEContent = CrawlerContent & {
   cTime: number;
 };
 
+export type AliMaMaFEContent = CrawlerContent & {
+  voteUp: number,
+  cTime: number,
+}
+
 export type RuanYifengContent = CrawlerContent & {
   commentCount: string;
   cTime: number;

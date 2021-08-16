@@ -1,5 +1,9 @@
 import { log } from "../common/log";
-import { CRAWLER_RUANYIFENG_TOPICS, CRAWLER_TIME_SPAN_HOURS } from "../config/env";
+import {
+  CRAWLER_RUANYIFENG_TOPICS,
+  CRAWLER_TIME_SPAN_HOURS,
+  CRAWLER_TOP_COUNT,
+} from "../config/env";
 import { RuanYifengContent } from "./type";
 import {
   githubFrontEndTopicWorker,
@@ -8,6 +12,7 @@ import {
   juejinFEHotWorker,
   ruanYifengBlogWorker,
   ruanYifengAllBlogWorker,
+  aliMaMaFEWorker,
 } from "./workers";
 
 const filterTimeSpan = 1000 * 3600 * CRAWLER_TIME_SPAN_HOURS;
@@ -20,7 +25,15 @@ export const ruanYifengBlogProcessor = async (): Promise<ProcessorResult> => {
 
     log(`阮一峰博客最新 ${latestArticles.length} 条`);
 
-    const allForReference = latestArticles.reduce<
+    const now = new Date().getTime();
+
+    const filteredLatestArticles = latestArticles.filter(
+      (article) => article.cTime + filterTimeSpan >= now
+    );
+
+    if (!filteredLatestArticles.length) return [0, ""];
+
+    const allForReference = filteredLatestArticles.reduce<
       Record<string, RuanYifengContent>
     >((rec, article) => {
       rec[article.link] = article;
@@ -28,23 +41,26 @@ export const ruanYifengBlogProcessor = async (): Promise<ProcessorResult> => {
     }, {});
 
     const topics = await Promise.all(
-      CRAWLER_RUANYIFENG_TOPICS.map(topic => ruanYifengBlogWorker(topic, allForReference))
+      CRAWLER_RUANYIFENG_TOPICS.map((topic) =>
+        ruanYifengBlogWorker(topic, allForReference)
+      )
     );
-    const totalArticles = topics.flatMap(topic => topic);
+    const totalArticles = topics.flatMap((topic) => topic);
 
     log(`阮一峰博客 ${totalArticles.length} 条`);
 
     topics.forEach((topic, index) => {
       if (CRAWLER_RUANYIFENG_TOPICS[index]) {
-        log(`阮一峰博客 ${CRAWLER_RUANYIFENG_TOPICS[index]} 专题 ${topic.length} 条`);
+        log(
+          `阮一峰博客 ${CRAWLER_RUANYIFENG_TOPICS[index]} 专题 ${topic.length} 条`
+        );
       }
-    })
+    });
 
     const content = [
       `## 阮一峰技术博客 *Ruan Yifeng's Personal Website*`,
       ...totalArticles.map((article) => [
-        `### [${article.title}](${article.link})`,
-        `评论数：${article.commentCount}`,
+        `* **[${article.title}](${article.link})** *评论数：${article.commentCount}*`,
       ]),
     ]
       .flatMap((i) => i)
@@ -65,11 +81,10 @@ export const githubFrontEndTopicProcessor =
       log(`Github 前端专题榜 ${articles.length} 条`);
 
       const content = [
-        `## Github 前端专题榜`,
-        ...articles.map((article) => [
-          `### [${article.title}](${article.link})`,
-          `    ${article.content}`,
-          `语言：${article.language} ｜ ⭐️：${article.stars}`,
+        `## Github 前端专题榜 TOP${CRAWLER_TOP_COUNT}`,
+        ...articles.slice(0, CRAWLER_TOP_COUNT).map((article) => [
+          `* **[${article.title}](${article.link})** *${article.language} ｜ ⭐️：${article.stars}*`,
+          `> ${article.content}`,
         ]),
       ]
         .flatMap((i) => i)
@@ -92,14 +107,13 @@ export const githubTrendingProcessor = async (): Promise<ProcessorResult> => {
     log(`Github 趋势榜（Typescript）${githubTrendingTS.length} 条`);
     log(`Github 趋势榜（Javascript）${githubTrendingJS.length} 条`);
 
-    const githubTrending = [...githubTrendingTS, ...githubTrendingJS];
+    const githubTrending = [...githubTrendingTS.slice(0, CRAWLER_TOP_COUNT), ...githubTrendingJS.slice(0, CRAWLER_TOP_COUNT)];
 
     const content = [
-      `## Github TS/JS 流行趋势`,
+      `## Github TS TOP ${CRAWLER_TOP_COUNT}/JS TOP ${CRAWLER_TOP_COUNT} 今日流行趋势`,
       ...githubTrending.map((article) => [
-        `### [${article.title}](${article.link})`,
-        `    ${article.content}`,
-        `语言：${article.language} ｜ fork：${article.forks} | ⭐️：${article.stars} | 今日 ⭐️：${article.todayStars} `,
+        `* **[${article.title}](${article.link})** *${article.language} ｜ fork：${article.forks} | ⭐️：${article.stars} | 今日 ⭐️：${article.todayStars}*`,
+        `> ${article.content}`,
       ]),
     ]
       .flatMap((i) => i)
@@ -119,7 +133,7 @@ export const juejinHotProcessor = async (): Promise<ProcessorResult> => {
     const now = new Date().getTime();
 
     const latestArticles = articles.filter(
-      (article) => article.cTime + filterTimeSpan > now
+      (article) => article.cTime + filterTimeSpan >= now
     );
 
     log(`掘金前端热帖结果 ${latestArticles.length}/${articles.length} 条`);
@@ -127,9 +141,8 @@ export const juejinHotProcessor = async (): Promise<ProcessorResult> => {
     const content = [
       `## 掘金 24 小时内最新前端热贴`,
       ...latestArticles.map((article) => [
-        `### [${article.title}](${article.link})`,
-        `    ${article.content}`,
-        `作者：${article.authorName} ｜ 评论数：${article.commentCount} | 浏览数：${article.viewCount} | 🧡：${article.diggCount}`,
+        `* **[${article.title}](${article.link})** *作者：${article.authorName} ｜ 评论数：${article.commentCount} | 浏览数：${article.viewCount} | 🧡：${article.diggCount}*`,
+        `> ${article.content}`,
       ]),
     ]
       .flatMap((i) => i)
@@ -149,7 +162,7 @@ export const infoQFEProcessor = async (): Promise<ProcessorResult> => {
     const now = new Date().getTime();
 
     const latestArticles = articles.filter(
-      (article) => article.cTime + filterTimeSpan > now
+      (article) => article.cTime + filterTimeSpan >= now
     );
 
     log(`InfoQ 前端之巅结果 ${latestArticles.length}/${articles.length} 条`);
@@ -157,9 +170,8 @@ export const infoQFEProcessor = async (): Promise<ProcessorResult> => {
     const content = [
       `## InfoQ 前端之巅 24 小时内最新前端热贴`,
       ...latestArticles.map((article) => [
-        `### [${article.title}](${article.link})`,
-        `    ${article.content}`,
-        `作者：${article.authors}`,
+        `* **[${article.title}](${article.link})** *作者：${article.authors}*`,
+        `> ${article.content}`,
       ]),
     ]
       .flatMap((i) => i)
@@ -168,6 +180,36 @@ export const infoQFEProcessor = async (): Promise<ProcessorResult> => {
     return [latestArticles.length, content];
   } catch (error) {
     log(`InfoQ 前端之巅请求错误 ${error.toString()}`, "error");
+
+    return [0, ""];
+  }
+};
+
+export const aliMaMaFeProcessor = async (): Promise<ProcessorResult> => {
+  try {
+    const articles = await aliMaMaFEWorker();
+
+    const now = new Date().getTime();
+
+    const latestArticles = articles.filter(
+      (article) => article.cTime + filterTimeSpan >= now
+    );
+
+    log(`阿里妈妈前端快爆结果 ${latestArticles.length}/${articles.length} 条`);
+
+    const content = [
+      `## 阿里妈妈前端快爆 24 小时内最新发布`,
+      ...latestArticles.map((article) => [
+        `* **[${article.title}](${article.link})** *🧡：${article.voteUp}*`,
+        `> ${article.content}`,
+      ]),
+    ]
+      .flatMap((i) => i)
+      .join("\n\n");
+
+    return [latestArticles.length, content];
+  } catch (error) {
+    log(`阿里妈妈前端快爆请求错误 ${error.toString()}`, "error");
 
     return [0, ""];
   }

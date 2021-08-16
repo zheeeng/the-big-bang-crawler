@@ -1,6 +1,7 @@
 import Crawler from "crawler";
 import fetch from "node-fetch";
 import {
+  AliMaMaFEContent,
   GithubFrontEndTopic,
   GithubTrendingContent,
   InfoQFEContent,
@@ -352,3 +353,27 @@ export const infoQFEWorker = async () => {
 
   return resultArticles;
 };
+
+export const aliMaMaFEWorker = async () => {
+  const articles: [{
+    excerpt: string,
+    title: string,
+    url: string,
+    voteup_count: number,
+    created: number,
+  }] = (
+    await (
+      await fetch("https://www.zhihu.com/api/v4/columns/mm-fe/items")
+    ).json()
+  )?.data;
+
+  const resultArticles: AliMaMaFEContent[] = articles.map((article) => ({
+    title: article.title,
+    content: article.excerpt,
+    link: article.url,
+    voteUp: article.voteup_count,
+    cTime: article.created * 1000,
+  }));
+
+  return resultArticles;
+}
