@@ -2,13 +2,17 @@ import * as processors from "./processors";
 import { nonNull } from "./utils";
 import fetch from "node-fetch";
 import { log } from "../common/log";
-import { CRAWLER_TIME_SPAN_HOURS } from "../config/env";
+import { CRAWLER_TIME_SPAN_HOURS, CRAWLER_BAN_TOPICS } from "../config/env";
 
 type ResultEntry = [
   processorName: string,
   content: null | [total: number, content: string],
   time: null | number
 ];
+
+type ProcessorNames = keyof typeof processors
+type GetProcessorConfigNames<T extends ProcessorNames> = T extends (`${infer I}Processor`) ? I : never
+type ProcessorConfigNames = GetProcessorConfigNames<ProcessorNames>
 
 const cacheLifeSpan = 1000 * 3600 * CRAWLER_TIME_SPAN_HOURS;
 
@@ -23,21 +27,23 @@ const updateResult = async () => {
 
   try {
     resultEntries = await Promise.all(
-      resultEntries.map(async ([processorName, content, time]) => {
-        if (!time || !content || now > time + cacheLifeSpan) {
-          log(`get ${processorName} from remote`);
+      resultEntries
+        .filter(([processorName]) => (CRAWLER_BAN_TOPICS as ProcessorConfigNames[]).every(topic => topic + 'Processor' !== processorName))
+        .map(async ([processorName, content, time]) => {
+          if (!time || !content || now > time + cacheLifeSpan) {
+            log(`get ${processorName} from remote`);
 
-          return [
-            processorName,
-            await processors[processorName as keyof typeof processors](),
-            now,
-          ] as ResultEntry;
-        } else {
-          log(`get ${processorName} from local cache`);
-        }
+            return [
+              processorName,
+              await processors[processorName as keyof typeof processors](),
+              now,
+            ] as ResultEntry;
+          } else {
+            log(`get ${processorName} from local cache`);
+          }
 
-        return [processorName, content, time] as ResultEntry;
-      })
+          return [processorName, content, time] as ResultEntry;
+        })
     );
   } catch (e) {
     log("updateResult 错误" + e.toString(), "error");
@@ -123,10 +129,9 @@ const message = async () => {
 
   const output = [
     `# the BIG BANG FE 🔥 今日读物`,
-    `**时间：***${today}*`,
-    `**总数：***${total} 条*`,
+    `**时间：** *${today}* | **总数：** *${total} 条*`,
     `![Hello](${greetingImage})`,
-    `> ${quote} *-- ${quoteAuthor}*`,
+    (quote && quoteAuthor) ? `> ${quote} *-- ${quoteAuthor}*` : '',
     '---',
     content,
   ].join("\n\n");
