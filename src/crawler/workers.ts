@@ -83,13 +83,12 @@ export const ruanYifengAllBlogWorker = async () => {
 };
 
 export const ruanYifengBlogWorker = async (
-  category: string,
-  allForReference: Record<string, RuanYifengContent>
+  category: string
 ) => {
   const uri = `https://www.ruanyifeng.com/blog/${category}/`;
 
   return (
-    await new Promise<Array<RuanYifengContent | null>>((resolve, reject) =>
+    await new Promise<Array<RuanYifengContent>>((resolve, reject) =>
       crawler.queue([
         {
           uri,
@@ -104,12 +103,19 @@ export const ruanYifengBlogWorker = async (
                   .map((idx) => {
                     const article$ = articles$.eq(idx);
 
-                    const link = article$.find("a").first().attr("href") ?? "";
+                    const title$ = article$.find("a").first();
 
-                    const maybeReferenceArticle = allForReference[link];
-                    if (!maybeReferenceArticle) return null;
+                    const title = title$.text().trim();
 
-                    return maybeReferenceArticle;
+                    const article: RuanYifengContent = {
+                      link: title$.attr("href") ?? "",
+                      title,
+                      content: "",
+                      cTime: 0,
+                      commentCount: '',
+                    };
+  
+                    return article;
                   })
                   .get();
 
