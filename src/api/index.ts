@@ -36,7 +36,12 @@ services
     dingTalkTask(request.query.answerHook ?? CRAWLER_DINGTALK_WEBHOOKS);
 
     return Response.json({
-      message: "机器人任务已发布",
+      errorCode: 200,
+      errorMsg: "机器人任务已发布",
+      success: true,
+      fields: {
+        message: "机器人任务已发布",
+      },
     });
   });
 
