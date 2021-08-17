@@ -191,7 +191,7 @@ const messageByProcessorName = async (queryProcessorName: ProcessorName) => {
 
   if (!content) return "无内容更新";
 
-  return [content.all, ...content.partial].join("\n--\n");
+  return content.all.flat().join("\n--\n");
 };
 
 export const singleton = async () => {
@@ -205,7 +205,7 @@ const translateList: Array<[key: ProcessorConfigName, ...fussKeys: string[]]> =
     ["ruanYifengBlog", "ruanyifeng", "阮一峰"],
     ["aliMaMaFe", "alimama", "快爆", "阿里妈妈"],
     ["juejinHot", "juejin", "掘金", "掘金热门", "掘金前端"],
-    ["infoQFE", "infoQ", "infoQ前端", "前端之巅"],
+    ["infoQFE", "infoQ", "infoQ前端", "前端之巅", "阅读", "reading"],
     ["githubFrontEndTopic", "topic", "前端专题", "前端话题"],
     [
       "githubTrending",
