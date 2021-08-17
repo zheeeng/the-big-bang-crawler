@@ -321,10 +321,7 @@ export const juejinFEHotWorker = async () => {
 
   const resultArticles: JuejinContent[] = articles.map((article) => ({
     title: article.article_info.title.replace(/(<[\w\s]+>)/g, "`$1`"),
-    content: article.article_info.brief_content.replaceAll(
-      /(<[\w\s]+>)/g,
-      "`$1`"
-    ),
+    content: article.article_info.brief_content.replace(/(<[\w\s]+>)/g, "`$1`"),
     link: `https://juejin.cn/post/${article.article_info.article_id}`,
     authorName: article.author_user_info.user_name,
     diggCount: formatNumber(article.article_info.digg_count),

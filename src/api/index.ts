@@ -54,19 +54,20 @@ services
     if (request.body.accessToken !== CRAWLER_ACCESS_TOKEN)
       return Response.status(401, "Invalid accessToken");
 
-    const hint = request.body["sys.userInput"]
-    const processorName = guessProcessor(hint)
+    const hint = request.body["sys.userInput"];
+    const processorName = guessProcessor(hint);
 
     log(`guess ${processorName} from ${hint}`);
 
-    if (!processorName) return Response.json({
-      errorCode: 200,
-      errorMsg: "没找到相关资料",
-      success: true,
-      fields: {
-        message: "没找到相关资料",
-      },
-    })
+    if (!processorName)
+      return Response.json({
+        errorCode: 200,
+        errorMsg: "没找到相关资料",
+        success: true,
+        fields: {
+          message: "没找到相关资料",
+        },
+      });
 
     dingTalkAsk(processorName, request.body.answerHook);
 

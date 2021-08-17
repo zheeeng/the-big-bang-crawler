@@ -20,7 +20,7 @@ const translateList: Array<[key: ProcessorConfigName, ...fussKeys: string[]]> =
 export const guessProcessor = (hint: string): ProcessorName | undefined => {
   const sentence = hint.toLowerCase();
   const target = translateList.find((words) =>
-    words.some((word) => sentence.includes(word))
+    words.some((word) => sentence.includes(word.toLowerCase()))
   )?.[0];
 
   return target ? `${target}Processor` : undefined;

@@ -1,5 +1,9 @@
 import fetch from "node-fetch";
-import { ProcessorName, singleton, singletonByHint } from "../crawler/singleton";
+import {
+  ProcessorName,
+  singleton,
+  singletonByHint,
+} from "../crawler/singleton";
 import { log } from "../common/log";
 
 export const dingTalkTask = async (webhooks: string | string[]) => {
