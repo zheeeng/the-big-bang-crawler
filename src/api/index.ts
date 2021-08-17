@@ -46,7 +46,7 @@ services
       answerHook: String,
       "sys.userInput": String,
     },
-    method: 'POST'
+    method: "POST",
   })
   .use(async (request) => {
     if (request.body.accessToken !== CRAWLER_ACCESS_TOKEN)
@@ -55,7 +55,11 @@ services
     dingTalkAsk(request.body["sys.userInput"], request.body.answerHook);
 
     return Response.json({
-      message: "问题已送出",
-      body: request.body,
+      errorCode: 0,
+      success: true,
+      fields: {
+        response: "问题已送出",
+        hint: request.body["sys.userInput"],
+      },
     });
   });
