@@ -191,7 +191,7 @@ const messageByProcessorName = async (queryProcessorName: ProcessorName) => {
 
   if (!content) return "无内容更新";
 
-  return content.all.flat().join("\n--\n");
+  return content.all.flat().join("\n---\n");
 };
 
 export const singleton = async () => {
