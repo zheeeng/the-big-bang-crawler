@@ -191,7 +191,7 @@ const messageByProcessorName = async (queryProcessorName: ProcessorName) => {
 
   if (!content) return "无内容更新";
 
-  return content.all.join("\n\n");
+  return [content.all, ...content.partial].join("\n--\n");
 };
 
 export const singleton = async () => {
@@ -222,6 +222,8 @@ export const singletonGuess = async (hint: string) => {
   const target = translateList.find((words) =>
     words.some((word) => sentence.includes(word))
   )?.[0];
+
+  log(`guess ${target} from ${hint}`)
 
   if (!target) return "";
 
