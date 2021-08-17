@@ -13,10 +13,10 @@ type ResultEntry = [
   time: null | number
 ];
 
-type ProcessorName = keyof typeof processors;
+export type ProcessorName = keyof typeof processors;
 type GetProcessorConfigName<T extends ProcessorName> =
   T extends `${infer I}Processor` ? I : never;
-type ProcessorConfigName = GetProcessorConfigName<ProcessorName>;
+export type ProcessorConfigName = GetProcessorConfigName<ProcessorName>;
 
 const cacheLifeSpan = 1000 * 3600 * CRAWLER_TIME_SPAN_HOURS;
 
@@ -200,35 +200,7 @@ export const singleton = async () => {
   return await message();
 };
 
-const translateList: Array<[key: ProcessorConfigName, ...fussKeys: string[]]> =
-  [
-    ["ruanYifengBlog", "ruanyifeng", "阮一峰"],
-    ["aliMaMaFe", "alimama", "快爆", "阿里妈妈"],
-    ["juejinHot", "juejin", "掘金", "掘金热门", "掘金前端"],
-    ["infoQFE", "infoQ", "infoQ前端", "前端之巅", "阅读", "reading"],
-    ["githubFrontEndTopic", "topic", "前端专题", "前端话题"],
-    [
-      "githubTrending",
-      "github",
-      "trending",
-      "前端流行",
-      "前端潮流",
-      "前端趋势",
-    ],
-  ];
-
-export const singletonGuess = async (hint: string) => {
-  const sentence = hint.toLowerCase();
-  const target = translateList.find((words) =>
-    words.some((word) => sentence.includes(word))
-  )?.[0];
-
-  log(`guess ${target} from ${hint}`)
-
-  if (!target) return "";
-
-  const processorName = (target + "Processor") as ProcessorName;
-
+export const singletonByHint = async (processorName: ProcessorName) => {
   await updateResultByProcessName(processorName);
 
   return messageByProcessorName(processorName);
