@@ -37,12 +37,6 @@ export const ruanYifengBlogProcessor = async (): Promise<ProcessorResult> => {
       (article) => article.cTime + filterTimeSpan >= now
     );
 
-    if (!filteredLatestArticles.length)
-      return {
-        all: [allFrontMatter, []],
-        partial: [partialFrontMatter, []],
-      };
-
     const allForReference = filteredLatestArticles.reduce<
       Record<string, RuanYifengContent>
     >((rec, article) => {
@@ -58,14 +52,14 @@ export const ruanYifengBlogProcessor = async (): Promise<ProcessorResult> => {
     const latestTopics = topics.map(topic => topic.filter(article => !!allForReference[article.link]))
 
     const totalArticles = topics.flatMap((topic) => topic);
-    const totalLatestArticles = totalArticles.flatMap((topic) => topic);
+    const totalLatestArticles = latestTopics.flatMap((topic) => topic);
 
-    log(`阮一峰博客 ${totalArticles.length}/${totalLatestArticles.length} 条`);
+    log(`阮一峰博客 ${totalLatestArticles.length}/${totalArticles.length} 条`);
 
     topics.forEach((topic, index) => {
       if (CRAWLER_RUANYIFENG_TOPICS[index]) {
         log(
-          `阮一峰博客 ${CRAWLER_RUANYIFENG_TOPICS[index]} 专题 ${topic.length}/${latestTopics[index].length} 条`
+          `阮一峰博客 ${CRAWLER_RUANYIFENG_TOPICS[index]} 专题 ${latestTopics[index].length}/${topic.length} 条`
         );
       }
     });
