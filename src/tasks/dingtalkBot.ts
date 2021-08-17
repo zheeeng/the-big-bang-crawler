@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import { singleton, singletonGuess } from "../crawler/singleton";
+import { ProcessorName, singleton, singletonByHint } from "../crawler/singleton";
 import { log } from "../common/log";
 
 export const dingTalkTask = async (webhooks: string | string[]) => {
@@ -35,7 +35,7 @@ export const dingTalkTask = async (webhooks: string | string[]) => {
   });
 };
 
-export const dingTalkAsk = async (hint: string, webhooks: string) => {
+export const dingTalkAsk = async (hint: ProcessorName, webhooks: string) => {
   const hooks = [webhooks].flat();
   if (!hooks.length) return;
 
@@ -43,13 +43,9 @@ export const dingTalkAsk = async (hint: string, webhooks: string) => {
     msgtype: "markdown",
     markdown: {
       title: "The BIG BANG FE 🔥 读物检索",
-      text: await singletonGuess(hint),
+      text: await singletonByHint(hint),
     },
   });
-
-  console.log({
-    body
-  })
 
   hooks.forEach(async (hook) => {
     log("webhook 触发 --> " + hook);
