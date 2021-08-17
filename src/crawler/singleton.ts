@@ -189,7 +189,7 @@ const messageByProcessorName = async (queryProcessorName: ProcessorName) => {
     ([processorName]) => processorName === queryProcessorName
   )?.[1];
 
-  if (!content) return "无内容更新";
+  if (!content) return "无新内容";
 
   return [content.all[0], '---', ...content.all[1]].join("\n\n");
 };
