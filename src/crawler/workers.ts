@@ -34,7 +34,10 @@ export const ruanYifengAllBlogWorker = async () => {
 
                   const title$ = article$.find("a").first();
                   const hint$ = article$.find(".hint").first();
-                  const title = title$.text().trim();
+                  const title = title$
+                    .text()
+                    .trim()
+                    .replace(/(<[\w\s]+>)/g, "`$1`");
                   const commentCount = hint$.text().replace(/\D/g, "");
                   const timeText = article$
                     .text()
@@ -82,9 +85,7 @@ export const ruanYifengAllBlogWorker = async () => {
   );
 };
 
-export const ruanYifengBlogWorker = async (
-  category: string
-) => {
+export const ruanYifengBlogWorker = async (category: string) => {
   const uri = `https://www.ruanyifeng.com/blog/${category}/`;
 
   return (
@@ -105,16 +106,19 @@ export const ruanYifengBlogWorker = async (
 
                     const title$ = article$.find("a").first();
 
-                    const title = title$.text().trim();
+                    const title = title$
+                      .text()
+                      .trim()
+                      .replace(/(<[\w\s]+>)/g, "`$1`");
 
                     const article: RuanYifengContent = {
                       link: title$.attr("href") ?? "",
                       title,
                       content: "",
                       cTime: 0,
-                      commentCount: '',
+                      commentCount: "",
                     };
-  
+
                     return article;
                   })
                   .get();
@@ -168,8 +172,12 @@ export const githubFrontEndTopicWorker = async () => {
                       .text()
                       .replace(/\s+/g, " ")
                       .replace(" / ", "/")
-                      .trim(),
-                    content: topicContent$.text().trim(),
+                      .trim()
+                      .replace(/(<[\w\s]+>)/g, "`$1`"),
+                    content: topicContent$
+                      .text()
+                      .trim()
+                      .replace(/(<[\w\s]+>)/g, "`$1`"),
                     language: language$.text().trim(),
                     stars: topicStar$.text().trim(),
                   };
@@ -228,8 +236,13 @@ export const githubTrendingWorker = async (
                       .text()
                       .replace(/\s+/g, " ")
                       .trim()
-                      .replace(" / ", "/"),
-                    content: boxRowContent$.text().replace(/\s+/g, " ").trim(),
+                      .replace(" / ", "/")
+                      .replace(/(<[\w\s]+>)/g, "`$1`"),
+                    content: boxRowContent$
+                      .text()
+                      .replace(/\s+/g, " ")
+                      .trim()
+                      .replace(/(<[\w\s]+>)/g, "`$1`"),
                     language,
                     stars: formatNumber(
                       parseInt(
@@ -307,8 +320,11 @@ export const juejinFEHotWorker = async () => {
   )?.data;
 
   const resultArticles: JuejinContent[] = articles.map((article) => ({
-    title: article.article_info.title,
-    content: article.article_info.brief_content,
+    title: article.article_info.title.replace(/(<[\w\s]+>)/g, "`$1`"),
+    content: article.article_info.brief_content.replaceAll(
+      /(<[\w\s]+>)/g,
+      "`$1`"
+    ),
     link: `https://juejin.cn/post/${article.article_info.article_id}`,
     authorName: article.author_user_info.user_name,
     diggCount: formatNumber(article.article_info.digg_count),
@@ -347,8 +363,8 @@ export const infoQFEWorker = async () => {
   )?.data;
 
   const resultArticles: InfoQFEContent[] = articles.map((article) => ({
-    title: article.article_title,
-    content: article.article_summary,
+    title: article.article_title.replace(/(<[\w\s]+>)/g, "`$1`"),
+    content: article.article_summary.replace(/(<[\w\s]+>)/g, "`$1`"),
     link: `https://www.infoq.cn/article/${article.uuid}`,
     authors:
       (article.no_author ||
@@ -361,25 +377,27 @@ export const infoQFEWorker = async () => {
 };
 
 export const aliMaMaFEWorker = async () => {
-  const articles: [{
-    excerpt: string,
-    title: string,
-    url: string,
-    voteup_count: number,
-    created: number,
-  }] = (
+  const articles: [
+    {
+      excerpt: string;
+      title: string;
+      url: string;
+      voteup_count: number;
+      created: number;
+    }
+  ] = (
     await (
       await fetch("https://www.zhihu.com/api/v4/columns/mm-fe/items")
     ).json()
   )?.data;
 
   const resultArticles: AliMaMaFEContent[] = articles.map((article) => ({
-    title: article.title,
-    content: article.excerpt,
+    title: article.title.replace(/(<[\w\s]+>)/g, "`$1`"),
+    content: article.excerpt.replace(/(<[\w\s]+>)/g, "`$1`"),
     link: article.url,
     voteUp: article.voteup_count,
     cTime: article.created * 1000,
   }));
 
   return resultArticles;
-}
+};
