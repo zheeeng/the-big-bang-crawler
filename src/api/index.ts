@@ -3,6 +3,8 @@ import { Nullable } from "farrow-schema";
 import { singleton } from "../crawler/singleton";
 import { CRAWLER_ACCESS_TOKEN, CRAWLER_DINGTALK_WEBHOOKS } from "../config/env";
 import { dingTalkTask, dingTalkAsk } from "../tasks/dingtalkBot";
+import { guessProcessor } from "../crawler/guessProcessor";
+import { log } from "../common/log";
 
 export const services = Router();
 
@@ -52,14 +54,28 @@ services
     if (request.body.accessToken !== CRAWLER_ACCESS_TOKEN)
       return Response.status(401, "Invalid accessToken");
 
-    dingTalkAsk(request.body["sys.userInput"], request.body.answerHook);
+    const hint = request.body["sys.userInput"]
+    const processorName = guessProcessor(hint)
 
-    return Response.json({
-      errorCode: 0,
+    log(`guess ${processorName} from ${hint}`);
+
+    if (!processorName) return Response.json({
+      errorCode: 200,
+      errorMsg: "没找到相关资料",
       success: true,
       fields: {
-        response: "问题已送出",
-        hint: request.body["sys.userInput"],
+        message: "没找到相关资料",
+      },
+    })
+
+    dingTalkAsk(processorName, request.body.answerHook);
+
+    return Response.json({
+      errorCode: 200,
+      errorMsg: "查找中...",
+      success: true,
+      fields: {
+        message: "查找中...",
       },
     });
   });
