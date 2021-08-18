@@ -167,7 +167,7 @@ export const githubFrontEndTopicWorker = async () => {
                     .first();
 
                   const topicArticle: GithubFrontEndTopic = {
-                    link: topicLink$.attr("href") ?? "",
+                    link: 'https://github.com/' + topicLink$.attr("href") ?? "",
                     title: topicTitle$
                       .text()
                       .replace(/\s+/g, " ")
@@ -231,7 +231,7 @@ export const githubTrendingWorker = async (
                     .first();
 
                   const trendArticle: GithubTrendingContent = {
-                    link: boxRowTitle$.attr("href") ?? "",
+                    link: 'https://github.com/' + boxRowTitle$.attr("href") ?? "",
                     title: boxRowTitle$
                       .text()
                       .replace(/\s+/g, " ")
