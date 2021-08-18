@@ -156,16 +156,12 @@ const message = async () => {
     .map((entry) => entry[1])
     .filter(nonNull)
     .reduce<[total: number, content: string]>(
-      ([outputTotal, outputContent], { partial: [frontMatter, entries ] }) => {
+      ([outputTotal, outputContent], { partial: [frontMatter, entries] }) => {
         if (!entries.length) return [outputTotal, outputContent];
         return [
           outputTotal + entries.length,
-          outputContent + [
-            frontMatter,
-            entries.join("\n\n"),
-            "---",
-          ]
-            .join("\n\n"),
+          outputContent +
+            [frontMatter, entries.join("\n\n"), "---", ""].join("\n\n"),
         ];
       },
       [0, ""]
