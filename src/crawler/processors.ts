@@ -157,7 +157,7 @@ export const githubTrendingProcessor = async (): Promise<ProcessorResult> => {
         partialFrontMatter,
         partialGithubTrending
           .map((article) => [
-            `* **[${article.title}](${article.link})** *${article.language}`,
+            `* **[${article.title}](${article.link})** *${article.language}*`,
             `> ${article.content}`,
           ])
           .flat(),
